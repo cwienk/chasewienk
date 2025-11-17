@@ -1,0 +1,352 @@
+---
+title: "How does Kickoff Time Effect College Football?"
+author: "Chase Wienk"
+date: '2025-11-17'
+categories: [football, cfb, college]
+image: "image.png"
+format: 
+  html:
+    code-fold: true
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggbeeswarm)
+library(ggrepel)
+library(ggalt)
+library(ggtext)
+library(waffle)
+library(patchwork)
+seasonsSorted <- read_csv("season_stats_withtime.csv")
+
+only23 <- seasonsSorted |>
+  filter(season == 2023)
+
+only24 <- seasonsSorted |>
+  filter(season == 2024) |>
+  mutate(
+    avg_points = sum(team_points) / 812
+  )
+only25 <- seasonsSorted |>
+  filter(season == 2025)
+
+nu23 <- only23 |>
+  filter(school == "Nebraska")
+
+uo23 <- only23 |>
+  filter(school == "Oregon")
+
+osu23 <- only23 |>
+  filter(school == "Ohio State")
+
+iu23 <- only23 |>
+  filter(school == "Indiana")
+
+ui23 <- only23 |>
+  filter(school == "Iowa")
+
+big23 <- only23 |>
+  filter(conference == "Big Ten")
+
+sec24 <- only24 |>
+  filter(conference == "SEC")
+
+big24 <- only24 |>
+  filter(conference == "Big Ten")
+
+sec23 <- only23 |>
+  filter(conference == "SEC")
+
+acc23 <- only23 |>
+  filter(conference == "ACC")
+
+bTwelve23 <- only23 |>
+  filter(conference == "Big 12")
+
+nu24 <- only24 |>
+  filter(school == "Nebraska")
+
+uo24 <- only24 |>
+  filter(school == "Oregon")
+
+osu24 <- only24 |>
+  filter(school == "Ohio State")
+
+iu24 <- only24 |>
+  filter(school == "Indiana")
+
+ui24 <- only24 |>
+  filter(school == "Iowa")
+
+big24 <- only24 |>
+  filter(conference == "Big Ten")
+
+all24E <- only24 |>
+  filter(time_slot == "Evening") |>
+  mutate(
+    avg_a24E = sum(team_points) / 352
+  )
+
+all24A <- only24 |>
+  filter(time_slot == "Afternoon") |>
+  mutate(
+    avg_a24E = sum(team_points) / 251
+  )
+
+all24N <- only24 |>
+  filter(time_slot == "Noon") |>
+  mutate(
+    avg_a24E = sum(team_points) / 209
+  )
+
+acc24 <- only24 |>
+  filter(conference == "ACC")
+
+bTwelve24 <- only24 |>
+  filter(conference == "Big 12")
+
+nu25 <- only25 |>
+  filter(school == "Nebraska")
+
+uo25 <- only25 |>
+  filter(school == "Oregon")
+
+osu25 <- only25 |>
+  filter(school == "Ohio State")
+
+iu25 <- only25 |>
+  filter(school == "Indiana")
+
+ui25 <- only25 |>
+  filter(school == "Iowa")
+
+big25 <- only25 |>
+  filter(conference == "Big Ten")
+
+sec25 <- only25 |>
+  filter(conference == "SEC")
+
+acc25 <- only25 |>
+  filter(conference == "ACC")
+
+bTwelve25 <- only25 |>
+  filter(conference == "Big 12")
+
+bigEslice <- big25 |>
+  filter(time_slot == "Evening") |>
+  summarise(
+    total_games = n()
+  )
+
+bigAslice <- big25 |>
+  filter(time_slot == "Afternoon") |>
+  summarise(
+    total_games = n()
+  )
+
+bigNslice <- big25 |>
+  filter(time_slot == "Noon") |>
+  summarise(
+    total_games = n()
+  )
+
+secEslice <- sec25 |>
+  filter(time_slot == "Evening") |>
+  summarise(
+    total_games = n()
+  )
+
+secAslice <- sec25 |>
+  filter(time_slot == "Afternoon") |>
+  summarise(
+    total_games = n()
+  )
+
+secNslice <- sec25 |>
+  filter(time_slot == "Noon") |>
+  summarise(
+    total_games = n()
+  )
+  
+big25 |>
+  mutate(
+    game_totals = 66 + 52 + 48,
+    late_share = 66 / game_totals,
+    noon_share = 48 / game_totals,
+    afternoon_share = 52 / game_totals
+  )
+
+sec25 |>
+  mutate(
+  game_totals = 63 + 53 + 32,
+  late_share = 63 / game_totals * 100,
+  noon_share = 32 / game_totals * 100,
+  afternoon_share = 53 / game_totals * 100
+  )
+
+distSec <- c("Noon" = 22, "Afternoon" = 36, "Evening" = 42)
+distBig <- c("Noon" = 29, "Afternoon" = 31, "Late" = 40)
+
+wpAll <- seasonsSorted |>
+  group_by(time_slot, school, conference) |>
+  summarise(
+    ppg = mean(team_points),
+    games = n(),
+  ) |>
+  arrange(desc(ppg))
+
+
+lateb10all <- wpAll|>
+  filter(conference == "Big Ten" & time_slot == "Evening")
+
+nuAllwp <- lateb10all |>
+  filter(school == "Nebraska")
+
+Ab10all <- wpAll|>
+  filter(conference == "Big Ten" & time_slot == "Afternoon")
+
+nuAllwp1 <- Ab10all |>
+  filter(school == "Nebraska")
+
+Nb10all <- wpAll|>
+  filter(conference == "Big Ten" & time_slot == "Noon")
+
+nuAllwp2 <- Nb10all |>
+  filter(school == "Nebraska")
+```
+
+We all have been there - getting ready to watch a Saturday night football game of our favorite team. It's prime-time football. Oh, the excitement. There will be gridiron action under the night sky and blazing lights. It's peak football. But even with all of the energy, light shows, social media roll-outs, fun alternate uniforms and whatever else goes into making a football game special in the evenings, one thing remains the same.
+
+Nebraska is still probably going to lose by one score.
+
+But in those moments of crushing defeat, or victory on occasion, the mind can often wander to the thought of "would we have gotten this outcome if we didn't play them during prime-time?"
+
+Sad, I know, but let's dive into whether or not time plays any sort of role in college football.
+
+```{r, message=FALSE, warning=FALSE}
+set.seed(1234) |>
+
+ggplot() + 
+  geom_quasirandom(data=acc24, aes(x=team_points, y=time_slot), color="grey", alpha = 0.3) +
+  geom_quasirandom(data=bTwelve24, aes(x=team_points, y=time_slot), color="grey", alpha = 0.3) +
+  geom_quasirandom(data=big24, aes(x=team_points, y=time_slot), color="lightblue") +
+  geom_quasirandom(data=sec24, aes(x=team_points, y=time_slot), color="orange")+
+  geom_vline(xintercept = 28.85345, color = "darkgrey") +
+  geom_vline(xintercept = 30.22488, color = "lightgreen") +
+  geom_vline(xintercept = 28.55378, color = "darkblue", alpha = 0.5) +
+  geom_vline(xintercept = 28.25284, color = "pink", alpha = 0.5) +
+  geom_hline(yintercept = 3, color = "lightgreen") +
+  geom_hline(yintercept = 1, color = "darkblue") +
+  geom_hline(yintercept = 2, color = "pink") +
+  geom_text(aes(x=16.5, y=2.5, label="Average points per game
+          for the Power Four"), color="black") +
+  geom_text(aes(x=45, y=3.15, label="Average points scored at noon"), color="black") +
+  geom_text(aes(x=49, y=1.15, label="Average points scored in the afternoon"), color="black") +
+  geom_text(aes(x=49, y=2.15, label="Average points scored in the evening"), color="black") +
+  labs(
+    x="Points Scored", 
+    y="Kickoff Time Slot", 
+    title="College football teams who play at the noon score way more points.", 
+    subtitle="That's an exaggeration, they only score 2 more points on average in comparison to all of the power\nfour at the other time slots.", 
+    caption="Blue dots: Big Ten, Orange: SEC | Source: cfbfastR | By Chase Wienk"
+    )+
+  theme_minimal()+
+  theme(
+    plot.title.position ="plot",
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 10),
+  )
+```
+
+This chart here shows the three major time slots separated with every game played in the 2024 season. There's a little cluster of lines at a little over 28, these being averages of afternoon games, evening games and the overall national average - regardless of time. The only noticeable difference in scoring averages was seen in our early games, where the average was just shy over 30 points per game.
+
+A little cluttered this chart is, yes - however the dots are colored to elude to another question I had while looking through this data:
+
+What do the splits between time-slots for the two front-running conferences look like?
+
+```{r, message=FALSE, warning=FALSE}
+iron(
+ waffle(distSec, 
+        rows = 10,
+        colors = c("yellow", "orange", "navy"))+
+   labs(
+      x= "22%  -  36%  -  42%\nSEC",
+        title="SEC/Big Ten Faceoff: by Kickoff Time",
+        subtitle="The two heavy hitting conferences don't vary much, except at noon.")+
+      theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 10),
+    axis.title.y = element_blank(),
+      ),
+ waffle(distBig, 
+        rows = 10, 
+        colors = c("yellow", "orange", "navy"))+
+        labs(
+          x = "29%  -  31%  -  40%\nBig Ten",
+          caption="Source: cfbfastR | By: Chase Wienk"
+        )
+)
+```
+
+We can see here they're fairly similar all things considered. The biggest discrepancy between these two pieces lie in that the Big Ten hosts more noon games by about 7%. These extra noon games are distributed more towards the afternoon slot, with another slight increase in the number of prime-time games SEC teams have.\
+In all honesty I halfway expected the margin to be higher in favor of the SEC.
+
+But how does Nebraska stack up in their success during prime-time while in such a competitive league like the Big Ten?
+
+The answer may surprise you.
+
+```{r, message=FALSE, warning=FALSE}
+plot1 <- ggplot() + 
+  geom_bar(data=lateb10all, aes(x=reorder(school, ppg), weight=ppg)) +
+  geom_bar(data=nuAllwp, aes(x=reorder(school, ppg), weight=ppg), fill="red") +
+  coord_flip()+
+  labs(
+    x="", 
+    y="Points per game", 
+    subtitle="Evening"
+    )+
+  theme_minimal()
+
+plot2 <- ggplot() + 
+  geom_bar(data=Ab10all, aes(x=reorder(school, ppg), weight=ppg)) +
+  geom_bar(data=nuAllwp1, aes(x=reorder(school, ppg), weight=ppg), fill="red") +
+  coord_flip()+
+  labs(
+    x="", 
+    y="Points per game", 
+    subtitle="Afternoon"
+    )+
+  theme_minimal()
+
+plot3 <- ggplot() + 
+  geom_bar(data=Nb10all, aes(x=reorder(school, ppg), weight=ppg)) +
+  geom_bar(data=nuAllwp2, aes(x=reorder(school, ppg), weight=ppg), fill="red") +
+  coord_flip()+
+    labs(
+    x="", 
+    y="Points per game", 
+    subtitle="Noon"
+    )+
+  theme_minimal()
+
+overall <- plot3 + plot2 + plot1 +
+  plot_annotation(
+    title = "Nebraska drowns in mediocrity, except at 2:30pm!",
+    subtitle = "But even then, they still don't scrape the top five in win-percentage in any time slot (under Matt Rhule).",
+    caption = "Data: 2023-2025 cfbfastR | By Chase Wienk",
+    theme = theme(
+      plot.title = element_text(size = 16, face = "bold"),
+      plot.subtitle = element_text(size = 10),
+      plot.caption = element_text(size = 8, color = "grey")
+    )
+  )
+overall
+```
+
+Or does it?
+
+Nope. More middle of the pack metrics for good ol' NU. Though the Huskers are certainly a little closer to the top in their 2:30 contests, scoring about 26 points per afternoon game. Someone tell Troy to update the schedule! Everywhere else though the Matt Rhule led Nebraska team has ranked in the bottom half of the Big Ten when it comes to putting up points.
+
+Nebraska may be relatively not-great at noon but at least they aren't Purdue, or UCLA. Yikes! They'd probably like to be more like Indiana with a crazy 55 points per game in their seven evening games in the last few years.
+
+In conclusion, the data doesn't show that there is a huge difference between when a team kicks off and how many points they're able to score in a game. Unless you're good and you just score a lot anyway.
